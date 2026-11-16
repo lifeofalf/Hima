@@ -33,6 +33,12 @@ export interface Dict {
     heading: string;
     items: { num: string; title: string; body: string; alt: string }[];
   };
+  welfare: {
+    kicker: string;
+    heading: string;
+    intro: string;
+    items: { title: string; body: string }[];
+  };
   facility: {
     kicker: string;
     title: string;
@@ -66,7 +72,7 @@ const no: Dict = {
   hero: {
     kicker: "Hima Seafood · Rjukan, Telemark",
     title: "Hima Trout",
-    sub: "Regnbueørret av sashimi-kvalitet, oppdrettet i kaldt, morenefiltrert fjellvann – i verdens største landbaserte ørretanlegg.",
+    sub: "Regnbueørret av sashimi-kvalitet fra Rjukan, oppdrettet på land i kaldt, morenefiltrert fjellvann, med fiskevelferd og bærekraft som førsteprioritet.",
     exploreCta: "Utforsk anlegget i 3D",
     storyCta: "Historien",
     scroll: "Bla nedover",
@@ -94,10 +100,34 @@ const no: Dict = {
       },
     ],
   },
+  welfare: {
+    kicker: "Fiskevelferd",
+    heading: "Fisk som har det godt, smaker bedre",
+    intro:
+      "Hele anlegget er bygd rundt én idé: at ørreten skal ha stabile, rolige og rene forhold fra rogn til slakt. Det er god dyrevelferd, og det er grunnlaget for en premium fisk.",
+    items: [
+      {
+        title: "Kaldt, rent vann",
+        body: "Grunnvannet holder sjelden mer enn 20 grader og er naturlig filtrert gjennom morener. Kaldt vann gir rolig, jevn vekst og en fast, mager fisk.",
+      },
+      {
+        title: "Stabile forhold",
+        body: "RAS-teknologien gir full kontroll på vannkvalitet, temperatur og oksygen, hver dag, hele året. Stabilitet er den viktigste enkeltfaktoren for fiskehelse.",
+      },
+      {
+        title: "Ingen lakselus",
+        body: "Anlegget ligger på land og bruker grunnvann. Lusa kommer aldri inn, og fisken trenger aldri avlusing.",
+      },
+      {
+        title: "Ingen rømming",
+        body: "Et lukket anlegg på land betyr null rømming og null påvirkning på ville bestander.",
+      },
+    ],
+  },
   facility: {
     kicker: "Anlegget",
     title: "Se anlegget innenfra",
-    intro: "Trykk på punktene for å fly inn i delene av RAS-anlegget – fra vanninntak til ferdig pakket fisk.",
+    intro: "Åpenhet er en del av produktet. For deg som vil se hvordan fisken lever: trykk på punktene og fly inn i delene av RAS-anlegget, fra vanninntak til ferdig pakket fisk.",
     hint: "Dra for å rotere · rull for å zoome · to fingre for å panorere",
     reset: "Vis hele anlegget",
     loading: "Laster anlegget …",
@@ -193,7 +223,7 @@ const en: Dict = {
   hero: {
     kicker: "Hima Seafood · Rjukan, Telemark",
     title: "Hima Trout",
-    sub: "Sashimi-grade rainbow trout, raised in cold, moraine-filtered mountain water – in the world's largest land-based trout farm.",
+    sub: "Sashimi-grade rainbow trout from Rjukan, raised on land in cold, moraine-filtered mountain water, with fish welfare and sustainability as the first priority.",
     exploreCta: "Explore the facility in 3D",
     storyCta: "The story",
     scroll: "Scroll down",
@@ -221,10 +251,34 @@ const en: Dict = {
       },
     ],
   },
+  welfare: {
+    kicker: "Fish welfare",
+    heading: "Fish that live well taste better",
+    intro:
+      "The whole facility is built around one idea: that the trout should have stable, calm and clean conditions from roe to harvest. That is good animal welfare, and it is the foundation of a premium fish.",
+    items: [
+      {
+        title: "Cold, clean water",
+        body: "The groundwater rarely exceeds 20 degrees and is naturally filtered through moraines. Cold water gives calm, even growth and a firm, lean fish.",
+      },
+      {
+        title: "Stable conditions",
+        body: "RAS technology gives full control of water quality, temperature and oxygen, every day, all year. Stability is the single most important factor for fish health.",
+      },
+      {
+        title: "No sea lice",
+        body: "The facility is on land and uses groundwater. Lice never get in, and the fish never need delousing.",
+      },
+      {
+        title: "No escapes",
+        body: "A closed facility on land means zero escapes and zero impact on wild stocks.",
+      },
+    ],
+  },
   facility: {
     kicker: "The facility",
     title: "See inside the facility",
-    intro: "Tap the markers to fly into each part of the RAS facility – from water intake to packed fish.",
+    intro: "Transparency is part of the product. For those who want to see how the fish actually live: tap the markers and fly into each part of the RAS facility, from water intake to packed fish.",
     hint: "Drag to rotate · scroll to zoom · two fingers to pan",
     reset: "View whole facility",
     loading: "Loading the facility …",
@@ -320,7 +374,7 @@ const de: Dict = {
   hero: {
     kicker: "Hima Seafood · Rjukan, Telemark",
     title: "Hima Trout",
-    sub: "Regenbogenforelle in Sashimi-Qualität, aufgezogen in kaltem, moränengefiltertem Bergwasser – in der größten landbasierten Forellenzucht der Welt.",
+    sub: "Regenbogenforelle in Sashimi-Qualität aus Rjukan, an Land aufgezogen in kaltem, moränengefiltertem Bergwasser, mit Fischwohl und Nachhaltigkeit an erster Stelle.",
     exploreCta: "Anlage in 3D erkunden",
     storyCta: "Die Geschichte",
     scroll: "Nach unten scrollen",
@@ -348,10 +402,34 @@ const de: Dict = {
       },
     ],
   },
+  welfare: {
+    kicker: "Fischwohl",
+    heading: "Fisch, dem es gut geht, schmeckt besser",
+    intro:
+      "Die gesamte Anlage ist um eine Idee herum gebaut: Die Forelle soll von der Rogenphase bis zur Ernte stabile, ruhige und saubere Bedingungen haben. Das ist gutes Tierwohl, und es ist die Grundlage für einen Premiumfisch.",
+    items: [
+      {
+        title: "Kaltes, reines Wasser",
+        body: "Das Grundwasser übersteigt selten 20 Grad und ist natürlich durch Moränen gefiltert. Kaltes Wasser sorgt für ruhiges, gleichmäßiges Wachstum und einen festen, mageren Fisch.",
+      },
+      {
+        title: "Stabile Bedingungen",
+        body: "Die RAS-Technologie gibt volle Kontrolle über Wasserqualität, Temperatur und Sauerstoff, jeden Tag, das ganze Jahr. Stabilität ist der wichtigste Einzelfaktor für die Fischgesundheit.",
+      },
+      {
+        title: "Keine Lachsläuse",
+        body: "Die Anlage liegt an Land und nutzt Grundwasser. Läuse kommen nie hinein, und der Fisch braucht nie eine Entlausung.",
+      },
+      {
+        title: "Keine Ausbrüche",
+        body: "Eine geschlossene Anlage an Land bedeutet null Ausbrüche und null Auswirkungen auf Wildbestände.",
+      },
+    ],
+  },
   facility: {
     kicker: "Die Anlage",
     title: "Die Anlage von innen",
-    intro: "Tippen Sie auf die Punkte, um in die Bereiche der RAS-Anlage zu fliegen – vom Wassereinlauf bis zum verpackten Fisch.",
+    intro: "Transparenz ist Teil des Produkts. Für alle, die sehen wollen, wie der Fisch lebt: Tippen Sie auf die Punkte und fliegen Sie in die Bereiche der RAS-Anlage, vom Wassereinlauf bis zum verpackten Fisch.",
     hint: "Ziehen zum Drehen · Scrollen zum Zoomen · zwei Finger zum Verschieben",
     reset: "Gesamte Anlage anzeigen",
     loading: "Anlage wird geladen …",
@@ -447,7 +525,7 @@ const fr: Dict = {
   hero: {
     kicker: "Hima Seafood · Rjukan, Telemark",
     title: "Hima Trout",
-    sub: "Truite arc-en-ciel de qualité sashimi, élevée dans une eau de montagne froide filtrée par les moraines – dans le plus grand élevage terrestre de truites au monde.",
+    sub: "Truite arc-en-ciel de qualité sashimi de Rjukan, élevée à terre dans une eau de montagne froide filtrée par les moraines, avec le bien-être du poisson et la durabilité comme première priorité.",
     exploreCta: "Explorer l'installation en 3D",
     storyCta: "L'histoire",
     scroll: "Faire défiler",
@@ -475,10 +553,34 @@ const fr: Dict = {
       },
     ],
   },
+  welfare: {
+    kicker: "Bien-être du poisson",
+    heading: "Un poisson qui vit bien a meilleur goût",
+    intro:
+      "Toute l'installation est construite autour d'une idée : offrir à la truite des conditions stables, calmes et propres, de l'œuf à la récolte. C'est du bon bien-être animal, et c'est le fondement d'un poisson premium.",
+    items: [
+      {
+        title: "Eau froide et pure",
+        body: "L'eau souterraine dépasse rarement 20 degrés et est filtrée naturellement par les moraines. L'eau froide donne une croissance calme et régulière, et un poisson ferme et maigre.",
+      },
+      {
+        title: "Conditions stables",
+        body: "La technologie RAS donne un contrôle total de la qualité de l'eau, de la température et de l'oxygène, chaque jour, toute l'année. La stabilité est le facteur le plus important pour la santé du poisson.",
+      },
+      {
+        title: "Pas de poux de mer",
+        body: "L'installation est à terre et utilise de l'eau souterraine. Les poux n'entrent jamais, et le poisson n'a jamais besoin de traitement antiparasitaire.",
+      },
+      {
+        title: "Aucune échappée",
+        body: "Une installation fermée à terre signifie zéro échappée et zéro impact sur les populations sauvages.",
+      },
+    ],
+  },
   facility: {
     kicker: "L'installation",
     title: "Voir l'installation de l'intérieur",
-    intro: "Touchez les repères pour survoler chaque partie de l'installation RAS – de la prise d'eau au poisson emballé.",
+    intro: "La transparence fait partie du produit. Pour qui veut voir comment vit le poisson : touchez les repères et survolez chaque partie de l'installation RAS, de la prise d'eau au poisson emballé.",
     hint: "Glisser pour pivoter · défiler pour zoomer · deux doigts pour déplacer",
     reset: "Voir toute l'installation",
     loading: "Chargement de l'installation …",

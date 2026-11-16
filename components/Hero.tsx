@@ -9,11 +9,11 @@ export default function Hero({ dict }: { dict: Dict }) {
         <h1 className="hero-title">{dict.hero.title}</h1>
         <p className="hero-sub">{dict.hero.sub}</p>
         <div className="hero-ctas">
-          <a className="btn btn-solid" href="#anlegget">
-            {dict.hero.exploreCta}
-          </a>
-          <a className="btn" href="#historien">
+          <a className="btn btn-solid" href="#historien">
             {dict.hero.storyCta}
+          </a>
+          <a className="btn" href="#anlegget">
+            {dict.hero.exploreCta}
           </a>
         </div>
       </div>

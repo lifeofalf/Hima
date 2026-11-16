@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Chapters from "@/components/Chapters";
+import Welfare from "@/components/Welfare";
 import FacilitySection from "@/components/facility/FacilitySection";
 import Specs from "@/components/Specs";
 import Sustainability from "@/components/Sustainability";
@@ -21,9 +22,10 @@ export default async function Page({
       <main>
         <Hero dict={dict} />
         <Chapters dict={dict} />
-        <FacilitySection dict={dict} />
-        <Specs dict={dict} />
+        <Welfare dict={dict} />
         <Sustainability dict={dict} />
+        <Specs dict={dict} />
+        <FacilitySection dict={dict} />
         <Cta dict={dict} />
       </main>
       <Footer dict={dict} />

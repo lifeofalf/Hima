@@ -353,6 +353,67 @@ img {
 }
 
 /* ------------------------------------------------------------------ */
+/* Fiskevelferd                                                        */
+/* ------------------------------------------------------------------ */
+
+.welfare {
+  padding: clamp(80px, 12vh, 150px) 0;
+  background: var(--paper);
+}
+
+.welfare-top {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: clamp(28px, 6vw, 90px);
+  align-items: center;
+  margin-bottom: clamp(36px, 6vh, 64px);
+}
+
+.welfare-intro {
+  max-width: 34em;
+  margin-top: 1.3rem;
+  color: var(--ink-soft);
+  font-size: clamp(0.98rem, 1.25vw, 1.12rem);
+}
+
+.welfare-media img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.welfare-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--grey-2);
+  border: 1px solid var(--grey-2);
+}
+
+.welfare-item {
+  background: var(--paper);
+  padding: 30px 26px 36px;
+}
+
+.welfare-item h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.8rem;
+  color: var(--bronze);
+}
+
+.welfare-item p {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 760px) {
+  .welfare-top {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Anlegget (3D)                                                       */
 /* ------------------------------------------------------------------ */
 
