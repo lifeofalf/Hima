@@ -1,14 +1,21 @@
 import type { HotspotId } from "./i18n";
 
 /**
- * Kamera- og markørdata for anleggsmodellen.
+ * Kamera- og markørdata for anleggsmodellen (Draco-GLB i /public/models).
  *
- * Når den ekte CAD-modellen (Draco-komprimert GLB) er på plass:
- *  1. Legg filen i /public/models/anlegg.glb og sett MODEL_URL under.
- *  2. Juster marker/camera/target til å treffe de faktiske delene,
- *     eller les posisjoner fra navngitte noder i GLB-en.
+ * Modellen er én sammenslått mesh uten delnavn, så hotspotene er plassert
+ * på verdenskoordinater (målt med ?debug=1-klikklogging). Når en bedre
+ * eksport med navngitte deler foreligger, kan posisjonene leses fra noder
+ * i stedet.
+ *
+ * `interior: true` betyr at hotspoten ligger inne i bygget: når den velges
+ * aktiveres snittvisningen («Se inni»), som klipper bort taket over
+ * CUTAWAY_HEIGHT.
  */
-export const MODEL_URL: string | null = null;
+export const MODEL_URL: string | null = "/models/anlegg.glb";
+
+/** Snitthøyde for «Se inni»-visningen, i scene-enheter */
+export const CUTAWAY_HEIGHT = 5.5;
 
 export interface HotspotDef {
   id: HotspotId;
@@ -18,6 +25,8 @@ export interface HotspotDef {
   camera: [number, number, number];
   /** Punktet kameraet ser mot */
   target: [number, number, number];
+  /** Ligger delen inne i bygget (krever snittvisning)? */
+  interior: boolean;
 }
 
 export const DEFAULT_VIEW: { camera: [number, number, number]; target: [number, number, number] } = {
@@ -26,11 +35,11 @@ export const DEFAULT_VIEW: { camera: [number, number, number]; target: [number, 
 };
 
 export const hotspotDefs: HotspotDef[] = [
-  { id: "intake", marker: [-38, 4.6, 14], camera: [-52, 10, 26], target: [-38, 2, 14] },
-  { id: "smolt", marker: [-22, 7.6, 13], camera: [-34, 11, 26], target: [-22, 3, 13] },
-  { id: "grow", marker: [-6, 8.2, -5.5], camera: [-4, 13, -22], target: [-6, 3, -4] },
-  { id: "filter", marker: [22, 9.2, 13], camera: [31, 11, 26], target: [22, 4, 13] },
-  { id: "purge", marker: [32, 7.2, -4], camera: [25, 9, -17], target: [32, 3, -4] },
-  { id: "processing", marker: [44, 8.6, -4], camera: [56, 11, -19], target: [44, 3, -4] },
-  { id: "energy", marker: [10, 6.8, 16], camera: [16, 9, 29], target: [10, 2.5, 16] },
+  { id: "intake", marker: [-38, 5, 5], camera: [-50, 11, 18], target: [-38, 2.5, 5], interior: false },
+  { id: "smolt", marker: [-26, 6.5, 2], camera: [-36, 13, 18], target: [-26, 3, 2], interior: true },
+  { id: "grow", marker: [-8, 6.5, 2], camera: [-14, 15, 20], target: [-8, 3, 2], interior: true },
+  { id: "filter", marker: [15, 6.5, 8], camera: [21, 12, 20], target: [15, 3, 8], interior: true },
+  { id: "purge", marker: [20, 6.5, 2], camera: [27, 13, 14], target: [20, 3, 2], interior: true },
+  { id: "processing", marker: [33, 6.5, -6], camera: [43, 12, -16], target: [33, 3, -6], interior: true },
+  { id: "energy", marker: [-2.6, 6.5, -4.4], camera: [2, 11, -17], target: [-2.6, 3, -4.4], interior: true },
 ];

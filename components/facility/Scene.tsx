@@ -6,7 +6,7 @@ import { OrbitControls, Html, Line, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { easing } from "maath";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
-import { hotspotDefs, DEFAULT_VIEW, MODEL_URL } from "@/lib/hotspots";
+import { hotspotDefs, DEFAULT_VIEW, MODEL_URL, CUTAWAY_HEIGHT } from "@/lib/hotspots";
 import PlaceholderModel from "./PlaceholderModel";
 import type { Dict, HotspotId } from "@/lib/i18n";
 
@@ -14,6 +14,7 @@ interface SceneProps {
   dict: Dict;
   activeId: HotspotId | null;
   resetTick: number;
+  cutaway: boolean;
   onSelect: (id: HotspotId | null) => void;
   onReady: () => void;
 }
@@ -76,8 +77,17 @@ function CameraRig({
   }, [controls]);
 
   useFrame((state, dt) => {
+    const c0 = state.controls as unknown as OrbitControlsImpl | null;
+    if (typeof window !== "undefined" && window.location.search.includes("debug")) {
+      // @ts-expect-error dev-instrumentering
+      window.__viewer = {
+        cam: state.camera.position.toArray().map((v) => Math.round(v * 10) / 10),
+        tgt: c0?.target.toArray().map((v) => Math.round(v * 10) / 10),
+        goal: goal.current ? goal.current.cam.toArray() : null,
+      };
+    }
     const g = goal.current;
-    const c = state.controls as unknown as OrbitControlsImpl | null;
+    const c = c0;
     if (!g || !c) return;
     easing.damp3(state.camera.position, g.cam, 0.32, dt);
     easing.damp3(c.target, g.tgt, 0.32, dt);
@@ -127,15 +137,89 @@ function WaterFlow({
 }
 
 /**
- * Den ekte anleggsmodellen (Draco-komprimert GLB).
- * Aktiveres ved å sette MODEL_URL i lib/hotspots.ts når CAD-modellen er klar.
+ * Den ekte anleggsmodellen (Draco-komprimert GLB, dekoder i /public/draco).
+ * Filen er én sammenslått mesh uten materialer, så vi normaliserer størrelsen
+ * (lengste side = 90 enheter, senter i origo, bakken på y=0) og setter ett
+ * arkitektmodell-aktig materiale. Med ?debug=1 i URL-en logges verdens-
+ * koordinaten for hvert klikk, til bruk for hotspot-plassering.
  */
-function RealModel({ url }: { url: string }) {
-  const { scene } = useGLTF(url);
-  return <primitive object={scene} />;
+const MODEL_FIT = 90;
+const CUTAWAY_OFF = 200;
+
+function RealModel({ url, cutaway }: { url: string; cutaway: boolean }) {
+  const { scene } = useGLTF(url, "/draco/");
+
+  const { scale, position } = useMemo(() => {
+    const box = new THREE.Box3().setFromObject(scene);
+    const size = box.getSize(new THREE.Vector3());
+    const s = MODEL_FIT / Math.max(size.x, size.y, size.z);
+    const center = box.getCenter(new THREE.Vector3());
+    return {
+      scale: s,
+      position: [-center.x * s, -box.min.y * s, -center.z * s] as [number, number, number],
+    };
+  }, [scene]);
+
+  // Snittplanet som kutter taket i «Se inni»-visningen (verdensrom, y <= constant)
+  const plane = useMemo(
+    () => new THREE.Plane(new THREE.Vector3(0, -1, 0), CUTAWAY_OFF),
+    []
+  );
+
+  useEffect(() => {
+    const material = new THREE.MeshStandardMaterial({
+      color: "#b9b6a9",
+      flatShading: true,
+      roughness: 0.85,
+      metalness: 0.05,
+      side: THREE.DoubleSide,
+      clippingPlanes: [plane],
+      clipShadows: true,
+    });
+    scene.traverse((obj) => {
+      if (obj instanceof THREE.Mesh) {
+        obj.material = material;
+        obj.castShadow = true;
+        obj.receiveShadow = true;
+      }
+    });
+  }, [scene, plane]);
+
+  // Debug: ?clip=<høyde> låser snittplanet for koordinatarbeid
+  const clipOverride = useMemo(() => {
+    if (typeof window === "undefined") return null;
+    const v = new URLSearchParams(window.location.search).get("clip");
+    return v ? Number(v) : null;
+  }, []);
+
+  useFrame((_, dt) => {
+    const target = clipOverride ?? (cutaway ? CUTAWAY_HEIGHT : CUTAWAY_OFF);
+    easing.damp(plane, "constant", target, 0.5, dt);
+  });
+
+  const debug =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).has("debug");
+
+  return (
+    <group scale={scale} position={position}>
+      <primitive
+        object={scene}
+        onPointerDown={
+          debug
+            ? (e: { point: THREE.Vector3 }) =>
+                console.log(
+                  "hotspot-koordinat:",
+                  e.point.toArray().map((v) => Math.round(v * 10) / 10)
+                )
+            : undefined
+        }
+      />
+    </group>
+  );
 }
 
-export default function Scene({ dict, activeId, resetTick, onSelect, onReady }: SceneProps) {
+export default function Scene({ dict, activeId, resetTick, cutaway, onSelect, onReady }: SceneProps) {
   const reduced = useMemo(
     () =>
       typeof window !== "undefined" &&
@@ -180,6 +264,7 @@ export default function Scene({ dict, activeId, resetTick, onSelect, onReady }: 
       shadows
       dpr={[1, 2]}
       camera={{ position: DEFAULT_VIEW.camera, fov: 42, near: 0.5, far: 400 }}
+      gl={{ localClippingEnabled: true }}
       onCreated={onReady}
       aria-label={dict.facility.canvasLabel}
     >
@@ -203,11 +288,17 @@ export default function Scene({ dict, activeId, resetTick, onSelect, onReady }: 
       />
 
       <Suspense fallback={null}>
-        {MODEL_URL ? <RealModel url={MODEL_URL} /> : <PlaceholderModel />}
+        {MODEL_URL ? <RealModel url={MODEL_URL} cutaway={cutaway} /> : <PlaceholderModel />}
       </Suspense>
 
-      <WaterFlow points={mainLoop} paused={reduced} />
-      <WaterFlow points={harvestLine} paused={reduced} speed={1.4} />
+      {/* Vannstrøm-animasjonen tegnes bare for plassholderen til traseen er
+          lagt om til den ekte modellens layout */}
+      {!MODEL_URL && (
+        <>
+          <WaterFlow points={mainLoop} paused={reduced} />
+          <WaterFlow points={harvestLine} paused={reduced} speed={1.4} />
+        </>
+      )}
 
       {hotspotDefs.map((h, i) => {
         const title = dict.facility.hotspots[h.id].title;

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Logo from "../Logo";
-import { hotspotDefs } from "@/lib/hotspots";
+import { hotspotDefs, MODEL_URL } from "@/lib/hotspots";
 import type { Dict, HotspotId } from "@/lib/i18n";
 
 const Scene = dynamic(() => import("./Scene"), { ssr: false, loading: () => null });
@@ -25,6 +25,7 @@ export default function FacilitySection({ dict }: { dict: Dict }) {
   const [ready, setReady] = useState(false);
   const [activeId, setActiveId] = useState<HotspotId | null>(null);
   const [resetTick, setResetTick] = useState(0);
+  const [cutaway, setCutaway] = useState(false);
   const panelCloseRef = useRef<HTMLButtonElement>(null);
   const lastFocusRef = useRef<HTMLElement | null>(null);
 
@@ -33,7 +34,11 @@ export default function FacilitySection({ dict }: { dict: Dict }) {
   }, []);
 
   const select = useCallback((id: HotspotId | null) => {
-    if (id) lastFocusRef.current = document.activeElement as HTMLElement;
+    if (id) {
+      lastFocusRef.current = document.activeElement as HTMLElement;
+      // Innvendige deler åpner snittvisningen automatisk
+      if (hotspotDefs.find((h) => h.id === id)?.interior) setCutaway(true);
+    }
     setActiveId(id);
   }, []);
 
@@ -76,6 +81,7 @@ export default function FacilitySection({ dict }: { dict: Dict }) {
                   dict={dict}
                   activeId={activeId}
                   resetTick={resetTick}
+                  cutaway={cutaway}
                   onSelect={select}
                   onReady={() => setReady(true)}
                 />
@@ -88,17 +94,29 @@ export default function FacilitySection({ dict }: { dict: Dict }) {
                 </div>
               )}
               <p className="viewer-hint">{dict.facility.hint}</p>
-              <button
-                type="button"
-                className="viewer-reset"
-                onClick={() => {
-                  select(null);
-                  setResetTick((t) => t + 1);
-                }}
-              >
-                {dict.facility.reset}
-              </button>
-              <p className="viewer-note">{dict.facility.placeholderNote}</p>
+              <div className="viewer-actions">
+                {MODEL_URL && (
+                  <button
+                    type="button"
+                    aria-pressed={cutaway}
+                    onClick={() => setCutaway((c) => !c)}
+                  >
+                    {cutaway ? dict.facility.cutClose : dict.facility.cutOpen}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="viewer-reset"
+                  onClick={() => {
+                    select(null);
+                    setCutaway(false);
+                    setResetTick((t) => t + 1);
+                  }}
+                >
+                  {dict.facility.reset}
+                </button>
+              </div>
+              {!MODEL_URL && <p className="viewer-note">{dict.facility.placeholderNote}</p>}
               {active && (
                 <div
                   className="hotspot-panel"

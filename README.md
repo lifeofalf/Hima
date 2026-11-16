@@ -22,14 +22,25 @@ Siden finnes på `/no`, `/en`, `/de` og `/fr`. Rot (`/`) videresendes til `/no`.
 - `components/facility/` – 3D-visningen (lazy-lastet, egen chunk)
 - `public/images`, `public/fonts` – gjenbrukt fra himaseafood.com
 
-## Bytte inn den ekte CAD-modellen
+## 3D-modellen
 
-1. Konverter CAD-filen til GLB og Draco-komprimer den
-   (`gltf-transform optimize inn.glb ut.glb --compress draco`).
-2. Legg filen i `public/models/anlegg.glb`.
-3. Sett `MODEL_URL = "/models/anlegg.glb"` i `lib/hotspots.ts`.
-4. Juster `marker`/`camera`/`target` per hotspot så de treffer de riktige delene.
-5. Fjern `PlaceholderModel` når alt stemmer.
+Den ekte anleggsmodellen ligger Draco-komprimert i `public/models/anlegg.glb`
+(8 MB → 1,5 MB, dekoder i `public/draco/`). Filen er én sammenslått mesh uten
+delnavn, materialer eller normaler, derfor:
+
+- Størrelsen normaliseres i `RealModel` (lengste side = 90 enheter) og hele
+  meshen får ett arkitektmodell-materiale med flat shading.
+- «Se inni»-knappen bruker et animert snittplan (`CUTAWAY_HEIGHT` i
+  `lib/hotspots.ts`) som kutter taket, siden takdeler ikke kan skjules enkeltvis.
+- Hotspotene er plassert på verdenskoordinater i `lib/hotspots.ts`.
+  Innvendige hotspots (`interior: true`) åpner snittvisningen automatisk.
+
+Verktøy for å justere hotspots: åpne siden med `?debug=1` og klikk i modellen,
+verdenskoordinaten logges i konsollen. `?clip=<høyde>` låser snittplanet.
+
+Får vi en ny eksport med navngitte deler og materialer, kan farger beholdes og
+hotspots festes til noder i stedet for koordinater. `PlaceholderModel` brukes
+bare hvis `MODEL_URL` settes til `null`, og kan slettes når modellen er endelig.
 
 ## Tilgjengelighet og fallback
 
