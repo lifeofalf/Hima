@@ -1,4 +1,4 @@
-export const locales = ["no", "en", "de", "fr"] as const;
+export const locales = ["no", "en", "de", "fr", "pl"] as const;
 export type Locale = (typeof locales)[number];
 
 export const defaultLocale: Locale = "no";
@@ -660,7 +660,157 @@ const fr: Dict = {
   },
 };
 
-const dictionaries: Record<Locale, Dict> = { no, en, de, fr };
+const pl: Dict = {
+  langName: "Polski",
+  meta: {
+    title: "Hima Trout – jakość sashimi z Rjukan",
+    description:
+      "Pstrąg tęczowy jakości sashimi, hodowany w zimnej, filtrowanej przez moreny wodzie górskiej w największym na świecie lądowym obiekcie RAS. Poznaj obiekt w 3D.",
+  },
+  nav: { story: "Historia", facility: "Obiekt", sustainability: "Zrównoważony rozwój", contact: "Kontakt" },
+  hero: {
+    kicker: "Hima Seafood · Rjukan, Telemark",
+    title: "Hima Trout",
+    sub: "Pstrąg tęczowy jakości sashimi z Rjukan, hodowany na lądzie w zimnej, filtrowanej przez moreny wodzie górskiej, z dobrostanem ryb i zrównoważonym rozwojem na pierwszym miejscu.",
+    exploreCta: "Poznaj obiekt w 3D",
+    storyCta: "Historia",
+    scroll: "Przewiń w dół",
+  },
+  chapters: {
+    heading: "Z doliny cieni",
+    items: [
+      {
+        num: "01",
+        title: "Ryba",
+        body: "Hima Trout wywodzi się ze szczepu Osland z Høyanger nad Sognefjordem – jednego z najstarszych szczepów pstrąga w Norwegii. Zimna woda daje chudą rybę o krótkich włóknach mięśniowych: jędrną, czystą i naturalnie czerwoną. Jako sashimi, marynowana, wędzona lub smażona.",
+        alt: "Dłonie obrabiające czerwony filet z pstrąga",
+      },
+      {
+        num: "02",
+        title: "Woda",
+        body: "Woda gruntowa pochodzi z ogromnego zbiornika w dolinie Vestfjorddalen i jest naturalnie filtrowana przez grube warstwy moren z wyżyn Telemarku. Zimna, czysta i stabilna – woda, którą czuć w smaku ryby.",
+        alt: "Rzeka płynąca przez krajobraz morenowy, widok z góry",
+      },
+      {
+        num: "03",
+        title: "Miejsce",
+        body: "Rjukan leży w dolinie cieni, gdzie wysokie góry przez pięć miesięcy w roku zasłaniają słońce, a niska mgła – hima – otula dolinę jak zimne objęcia. Rzeczy niemożliwe już się tu udawały.",
+        alt: "Góra w Telemarku spowita chmurami",
+      },
+    ],
+  },
+  welfare: {
+    kicker: "Dobrostan ryb",
+    heading: "Ryby, którym dobrze się żyje, smakują lepiej",
+    intro:
+      "Cały obiekt zbudowano wokół jednej idei: pstrąg ma mieć stabilne, spokojne i czyste warunki od ikry aż do odłowu. To dobry dobrostan zwierząt i fundament ryby premium.",
+    items: [
+      {
+        title: "Zimna, czysta woda",
+        body: "Temperatura wody gruntowej rzadko przekracza 20 stopni, a woda jest naturalnie filtrowana przez moreny. Zimna woda zapewnia spokojny, równomierny wzrost oraz jędrną, chudą rybę.",
+      },
+      {
+        title: "Stabilne warunki",
+        body: "Technologia RAS daje pełną kontrolę nad jakością wody, temperaturą i tlenem – każdego dnia, przez cały rok. Stabilność to najważniejszy pojedynczy czynnik dla zdrowia ryb.",
+      },
+      {
+        title: "Bez wszy morskich",
+        body: "Obiekt znajduje się na lądzie i korzysta z wody gruntowej. Wszy nigdy się nie przedostają, a ryby nigdy nie wymagają odwszania.",
+      },
+      {
+        title: "Bez ucieczek",
+        body: "Zamknięty obiekt na lądzie oznacza zero ucieczek i zero wpływu na dzikie populacje.",
+      },
+    ],
+  },
+  facility: {
+    kicker: "Obiekt",
+    title: "Zajrzyj do wnętrza obiektu",
+    intro: "Przejrzystość jest częścią produktu. Dla tych, którzy chcą zobaczyć, jak naprawdę żyją ryby: dotknij znaczników i przeleć przez kolejne części obiektu RAS, od ujęcia wody po zapakowaną rybę.",
+    hint: "Przeciągnij, aby obrócić · przewiń, aby przybliżyć · dwa palce, aby przesunąć",
+    reset: "Pokaż cały obiekt",
+    loading: "Wczytywanie obiektu …",
+    webglFallback: "Twoja przeglądarka nie obsługuje 3D. Oto obiekt na zdjęciu – objaśnienia znajdziesz poniżej.",
+    fallbackAlt: "Dolina Rjukan, w której znajduje się obiekt",
+    hotspotListHeading: "Części obiektu",
+    close: "Zamknij",
+    canvasLabel: "Interaktywny model 3D obiektu w Rjukan",
+    markerLabel: "Pokaż objaśnienie: {title}",
+    hotspots: {
+      intake: {
+        title: "Ujęcie wody",
+        body: "Woda gruntowa z doliny Vestfjorddalen jest pompowana ze studni znajdujących się bezpośrednio pod obiektem – naturalnie filtrowana przez moreny, nigdy cieplejsza niż 20 °C.",
+      },
+      smolt: {
+        title: "Dział narybku",
+        body: "Tu wykluwa się ikra ze szczepu Osland, a narybek rośnie w mniejszych zbiornikach, aż będzie gotowy do przeniesienia do działu tuczu.",
+      },
+      grow: {
+        title: "Zbiorniki tuczowe",
+        body: "W dużych zbiornikach pstrąg rośnie przez 17 miesięcy do średniej wagi około 4 kilogramów – w zimnej, stale oczyszczanej wodzie.",
+      },
+      filter: {
+        title: "Filtracja RAS",
+        body: "Filtry bębnowe i biofiltry stale oczyszczają wodę i zawracają ją do obiegu. Technologia RAS firmy EYVI zapewnia niskie zużycie wody i pełną kontrolę nad jej jakością.",
+      },
+      purge: {
+        title: "Purge",
+        body: "Przed odłowem ryby przebywają w czystej, zimnej wodzie bez karmienia. Efekt to czysty, świeży smak – gotowy na sashimi.",
+      },
+      processing: {
+        title: "Przetwórstwo",
+        body: "Ryby są delikatnie odławiane i pakowane jako HOG (patroszone z głową) z 16-dniowym terminem przydatności – krótka droga od wody do rynku.",
+      },
+      energy: {
+        title: "Centrum energetyczne",
+        body: "Obiekt odzyskuje ciepło odpadowe z centrum danych Green Mountain, a pasza i ryby są transportowane bezemisyjnymi ciężarówkami wodorowymi.",
+      },
+    },
+  },
+  specs: {
+    heading: "Liczby",
+    items: [
+      { value: "8 000", label: "ton HOG rocznie" },
+      { value: "~4 kg", label: "średnia waga przy odłowie" },
+      { value: "17", label: "miesięcy od narybku do odłowu" },
+      { value: "16", label: "dni przydatności (HOG)" },
+      { value: "20 mln", label: "posiłków rocznie" },
+    ],
+  },
+  sustain: {
+    heading: "Zrównoważony rozwój bez kompromisów",
+    items: [
+      {
+        title: "Woda w obiegu zamkniętym",
+        body: "Technologia RAS stale ponownie wykorzystuje wodę, przy minimalnym zużyciu i kontrolowanej gospodarce odpadami.",
+      },
+      {
+        title: "Ciepło odpadowe",
+        body: "Ciepło z sąsiedniego centrum danych ogrzewa obiekt – energia wykorzystana dwukrotnie.",
+      },
+      {
+        title: "Transport wodorowy",
+        body: "Pasza w jedną stronę, ryby w drugą – bezemisyjnymi ciężarówkami wodorowymi.",
+      },
+      {
+        title: "Blisko rynku",
+        body: "Hodowane na lądzie, blisko rynku – świeższe ryby i mniejszy ślad węglowy.",
+      },
+    ],
+  },
+  cta: {
+    heading: "Spróbuj Hima Trout",
+    body: "Hima Trout dostarczamy jako HOG jakości sashimi wybranym klientom. Skontaktuj się z nami w sprawie cen i dostępności.",
+    button: "Skontaktuj się",
+  },
+  footer: {
+    facilityLabel: "Zakład",
+    salesLabel: "Biuro sprzedaży",
+    rights: "Wszelkie prawa zastrzeżone.",
+  },
+};
+
+const dictionaries: Record<Locale, Dict> = { no, en, de, fr, pl };
 
 export function getDict(locale: string): Dict {
   return dictionaries[(locales as readonly string[]).includes(locale) ? (locale as Locale) : defaultLocale];

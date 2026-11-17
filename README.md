@@ -12,12 +12,12 @@ npm run dev      # utvikling
 npm run build && npm run start   # produksjon
 ```
 
-Siden finnes på `/no`, `/en`, `/de` og `/fr`. Rot (`/`) videresendes til `/no`.
+Siden finnes på `/no`, `/en`, `/de`, `/fr` og `/pl`. Rot (`/`) videresendes til `/no`.
 
 ## Struktur
 
 - `app/[locale]/` – side og layout (statisk generert per språk)
-- `lib/i18n.ts` – all tekst på fire språk (flat struktur, lett å flytte til Sanity)
+- `lib/i18n.ts` – all tekst på fem språk (flat struktur, lett å flytte til Sanity)
 - `lib/hotspots.ts` – hotspot-/kameradata for 3D-modellen
 - `components/facility/` – 3D-visningen (lazy-lastet, egen chunk)
 - `public/images`, `public/fonts` – gjenbrukt fra himaseafood.com
