@@ -45,8 +45,6 @@ export interface Dict {
     intro: string;
     hint: string;
     reset: string;
-    cutOpen: string;
-    cutClose: string;
     loading: string;
     webglFallback: string;
     fallbackAlt: string;
@@ -54,7 +52,6 @@ export interface Dict {
     close: string;
     canvasLabel: string;
     markerLabel: string; // "{title}" interpolated
-    placeholderNote: string;
     hotspots: Record<HotspotId, HotspotText>;
   };
   specs: { heading: string; items: { value: string; label: string }[] };
@@ -132,8 +129,6 @@ const no: Dict = {
     intro: "Åpenhet er en del av produktet. For deg som vil se hvordan fisken lever: trykk på punktene og fly inn i delene av RAS-anlegget, fra vanninntak til ferdig pakket fisk.",
     hint: "Dra for å rotere · rull for å zoome · to fingre for å panorere",
     reset: "Vis hele anlegget",
-    cutOpen: "Se inni anlegget",
-    cutClose: "Vis taket",
     loading: "Laster anlegget …",
     webglFallback: "Nettleseren din støtter ikke 3D-visning. Her er anlegget i stillbilde – forklaringene finner du under.",
     fallbackAlt: "Dalen i Rjukan der anlegget ligger",
@@ -141,7 +136,6 @@ const no: Dict = {
     close: "Lukk",
     canvasLabel: "Interaktiv 3D-modell av anlegget på Rjukan",
     markerLabel: "Vis forklaring: {title}",
-    placeholderNote: "Foreløpig modell – erstattes av CAD-modellen av anlegget.",
     hotspots: {
       intake: {
         title: "Vanninntak",
@@ -285,8 +279,6 @@ const en: Dict = {
     intro: "Transparency is part of the product. For those who want to see how the fish actually live: tap the markers and fly into each part of the RAS facility, from water intake to packed fish.",
     hint: "Drag to rotate · scroll to zoom · two fingers to pan",
     reset: "View whole facility",
-    cutOpen: "Look inside",
-    cutClose: "Show the roof",
     loading: "Loading the facility …",
     webglFallback: "Your browser does not support 3D. Here is the facility as a still image – the explanations are below.",
     fallbackAlt: "The Rjukan valley where the facility lies",
@@ -294,7 +286,6 @@ const en: Dict = {
     close: "Close",
     canvasLabel: "Interactive 3D model of the Rjukan facility",
     markerLabel: "Show explanation: {title}",
-    placeholderNote: "Preliminary model – will be replaced by the CAD model of the facility.",
     hotspots: {
       intake: {
         title: "Water intake",
@@ -438,8 +429,6 @@ const de: Dict = {
     intro: "Transparenz ist Teil des Produkts. Für alle, die sehen wollen, wie der Fisch lebt: Tippen Sie auf die Punkte und fliegen Sie in die Bereiche der RAS-Anlage, vom Wassereinlauf bis zum verpackten Fisch.",
     hint: "Ziehen zum Drehen · Scrollen zum Zoomen · zwei Finger zum Verschieben",
     reset: "Gesamte Anlage anzeigen",
-    cutOpen: "Hineinschauen",
-    cutClose: "Dach anzeigen",
     loading: "Anlage wird geladen …",
     webglFallback: "Ihr Browser unterstützt kein 3D. Hier ist die Anlage als Standbild – die Erklärungen finden Sie darunter.",
     fallbackAlt: "Das Tal von Rjukan, in dem die Anlage liegt",
@@ -447,7 +436,6 @@ const de: Dict = {
     close: "Schließen",
     canvasLabel: "Interaktives 3D-Modell der Anlage in Rjukan",
     markerLabel: "Erklärung anzeigen: {title}",
-    placeholderNote: "Vorläufiges Modell – wird durch das CAD-Modell der Anlage ersetzt.",
     hotspots: {
       intake: {
         title: "Wassereinlauf",
@@ -591,8 +579,6 @@ const fr: Dict = {
     intro: "La transparence fait partie du produit. Pour qui veut voir comment vit le poisson : touchez les repères et survolez chaque partie de l'installation RAS, de la prise d'eau au poisson emballé.",
     hint: "Glisser pour pivoter · défiler pour zoomer · deux doigts pour déplacer",
     reset: "Voir toute l'installation",
-    cutOpen: "Voir l'intérieur",
-    cutClose: "Afficher le toit",
     loading: "Chargement de l'installation …",
     webglFallback: "Votre navigateur ne prend pas en charge la 3D. Voici l'installation en image fixe – les explications sont ci-dessous.",
     fallbackAlt: "La vallée de Rjukan où se trouve l'installation",
@@ -600,7 +586,6 @@ const fr: Dict = {
     close: "Fermer",
     canvasLabel: "Modèle 3D interactif de l'installation de Rjukan",
     markerLabel: "Afficher l'explication : {title}",
-    placeholderNote: "Modèle provisoire – sera remplacé par le modèle CAO de l'installation.",
     hotspots: {
       intake: {
         title: "Prise d'eau",

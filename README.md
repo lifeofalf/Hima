@@ -25,25 +25,27 @@ Siden finnes på `/no`, `/en`, `/de` og `/fr`. Rot (`/`) videresendes til `/no`.
 ## 3D-modellen
 
 Anleggsmodellen ligger Draco-komprimert i `public/models/anlegg.glb`
-(1,9 MB, dekoder i `public/draco/`). CAD-eksporten var én sammenslått mesh
-uten delnavn eller materialer, så `scripts/colorize-model.py` deler den i
-navngitte deler som `Scene.tsx` farger via `PART_STYLES`:
+(1,2 MB, dekoder i `public/draco/`). Den bygges fra CAD-eksporten med
+`scripts/build-model.py`, som lager en forenklet «dukkehus»-versjon i stil
+med arkitektens rendring:
 
-- `wall`, `floor`, `roof`, `structure`, `ground`: bygget i varme gråtoner
-- `tank_floor` + `water`: alle 32 kar (16 åttekantede påvekstkar, 8 runde kar,
-  8 smoltkar) får mørk bunn og en halvgjennomsiktig vannflate rett under kanten
-- `pipe_large` / `pipe_small`: rør funnet som avlange biter med rundt
-  tverrsnitt, foreløpig blå og gull til de matches mot arkitektens rendring
+- alt utenfor bygget (tomt, master, ytre rørføringer) og under gulvnivå fjernes
+- hele modellen kuttes rett over karene, uten tak og himlinger
+- bittesmå biter og undersider fjernes (500k → 313k trekanter)
+- resten deles i navngitte deler som `Scene.tsx` farger via `PART_STYLES`:
+  hvite vegger, grå gulv, turkist vann i alle 36 kar og i kanalbassenget,
+  og fargede rør og røde beholdere i det tekniske rommet i østenden
 
-Kar-sentrene i skriptet er lest av en plantegning generert fra modellen og
-gjelder bare denne eksporten. Kommer en ny eksport med navngitte deler og
-materialer, kan den brukes direkte og skriptet blir overflødig.
+```bash
+python3 scripts/build-model.py anlegg-raw.glb anlegg-web.glb   # trimesh, scipy, pillow
+gltf-transform draco anlegg-web.glb public/models/anlegg.glb
+```
 
-«Se inni»-knappen bruker et animert snittplan (`CUTAWAY_HEIGHT` i
-`lib/hotspots.ts`) som kutter taket. Hotspotene er plassert på
-verdenskoordinater; innvendige hotspots (`interior: true`) åpner snittet
-automatisk. `?debug=1` i URL-en logger klikk-koordinater i konsollen, og
-`?clip=<høyde>` låser snittplanet.
+Kar-sentrene og sonene i skriptet er lest av en plantegning generert fra
+modellen og gjelder bare denne eksporten. Skalaen er låst til CAD-koordinatene
+(`MODEL_SCALE` i `Scene.tsx`), så hotspotene i `lib/hotspots.ts` står fast
+selv om modellen forenkles videre. `?debug=1` i URL-en logger klikk-
+koordinater i konsollen, til bruk for hotspot-plassering.
 
 ## Tilgjengelighet og fallback
 

@@ -442,7 +442,7 @@ img {
   position: relative;
   height: min(78vh, 760px);
   min-height: 420px;
-  background: #1c1a10;
+  background: #eceeee;
   border: 1px solid rgba(195, 158, 92, 0.25);
   overflow: hidden;
 }
@@ -458,7 +458,7 @@ img {
   z-index: 5;
   font-size: 0.72rem;
   letter-spacing: 0.08em;
-  color: rgba(208, 210, 210, 0.55);
+  color: rgba(35, 33, 20, 0.5);
   pointer-events: none;
 }
 
@@ -478,7 +478,7 @@ img {
   text-transform: uppercase;
   border: 1px solid var(--gold);
   color: var(--bg);
-  background: rgba(35, 33, 20, 0.55);
+  background: rgba(35, 33, 20, 0.85);
   backdrop-filter: blur(4px);
   transition: background 0.2s, color 0.2s;
 }
@@ -494,16 +494,6 @@ img {
     flex-direction: column;
     align-items: flex-end;
   }
-}
-
-.viewer-note {
-  position: absolute;
-  bottom: 12px;
-  right: 14px;
-  z-index: 5;
-  font-size: 0.68rem;
-  color: rgba(159, 158, 149, 0.6);
-  pointer-events: none;
 }
 
 @media (max-width: 680px) {
@@ -522,8 +512,8 @@ img {
   align-items: center;
   justify-content: center;
   gap: 22px;
-  background: #1c1a10;
-  color: var(--grey-2);
+  background: #eceeee;
+  color: var(--grey);
   font-size: 0.8rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;

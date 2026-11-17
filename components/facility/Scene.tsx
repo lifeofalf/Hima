@@ -2,19 +2,17 @@
 
 import { Suspense, useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls, Html, Line, useGLTF } from "@react-three/drei";
+import { OrbitControls, Html, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { easing } from "maath";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
-import { hotspotDefs, DEFAULT_VIEW, MODEL_URL, CUTAWAY_HEIGHT } from "@/lib/hotspots";
-import PlaceholderModel from "./PlaceholderModel";
+import { hotspotDefs, DEFAULT_VIEW, MODEL_URL } from "@/lib/hotspots";
 import type { Dict, HotspotId } from "@/lib/i18n";
 
 interface SceneProps {
   dict: Dict;
   activeId: HotspotId | null;
   resetTick: number;
-  cutaway: boolean;
   onSelect: (id: HotspotId | null) => void;
   onReady: () => void;
 }
@@ -36,31 +34,17 @@ function CameraRig({
   const controls = useThree((s) => s.controls) as unknown as OrbitControlsImpl | null;
 
   useEffect(() => {
-    const view = activeId
-      ? hotspotDefs.find((h) => h.id === activeId)!
-      : DEFAULT_VIEW;
+    const view = activeId ? hotspotDefs.find((h) => h.id === activeId)! : DEFAULT_VIEW;
     const tgt = new THREE.Vector3(...view.target);
     // Smale skjermer trenger mer avstand for å få med hele utsnittet
     const { width, height } = get().size;
     const factor = width / height < 0.9 ? 1.6 : 1;
-    const cam = tgt
-      .clone()
-      .add(new THREE.Vector3(...view.camera).sub(tgt).multiplyScalar(factor));
-    if (first.current) {
+    const cam = tgt.clone().add(new THREE.Vector3(...view.camera).sub(tgt).multiplyScalar(factor));
+    if (first.current || reduced) {
       first.current = false;
       camera.position.copy(cam);
-      if (controls) {
-        controls.target.copy(tgt);
-        controls.update();
-      }
-      return;
-    }
-    if (reduced) {
-      camera.position.copy(cam);
-      if (controls) {
-        controls.target.copy(tgt);
-        controls.update();
-      }
+      controls?.target.copy(tgt);
+      controls?.update();
       goal.current = null;
     } else {
       goal.current = { cam, tgt };
@@ -77,25 +61,13 @@ function CameraRig({
   }, [controls]);
 
   useFrame((state, dt) => {
-    const c0 = state.controls as unknown as OrbitControlsImpl | null;
-    if (typeof window !== "undefined" && window.location.search.includes("debug")) {
-      // @ts-expect-error dev-instrumentering
-      window.__viewer = {
-        cam: state.camera.position.toArray().map((v) => Math.round(v * 10) / 10),
-        tgt: c0?.target.toArray().map((v) => Math.round(v * 10) / 10),
-        goal: goal.current ? goal.current.cam.toArray() : null,
-      };
-    }
     const g = goal.current;
-    const c = c0;
+    const c = state.controls as unknown as OrbitControlsImpl | null;
     if (!g || !c) return;
     easing.damp3(state.camera.position, g.cam, 0.32, dt);
     easing.damp3(c.target, g.tgt, 0.32, dt);
     c.update();
-    if (
-      state.camera.position.distanceTo(g.cam) < 0.05 &&
-      c.target.distanceTo(g.tgt) < 0.05
-    ) {
+    if (state.camera.position.distanceTo(g.cam) < 0.05 && c.target.distanceTo(g.tgt) < 0.05) {
       goal.current = null;
     }
   });
@@ -103,148 +75,80 @@ function CameraRig({
   return null;
 }
 
-/** Animert strek som viser vannets vei gjennom anlegget. */
-function WaterFlow({
-  points,
-  paused,
-  speed = 2.2,
-}: {
-  points: THREE.Vector3[];
-  paused: boolean;
-  speed?: number;
-}) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ref = useRef<any>(null);
-  useFrame((_, dt) => {
-    const mat = ref.current?.material;
-    if (!paused && mat) {
-      mat.dashOffset -= dt * speed;
-    }
-  });
-  return (
-    <Line
-      ref={ref}
-      points={points}
-      color="#8fa6a8"
-      lineWidth={1.6}
-      dashed
-      dashSize={0.9}
-      gapSize={0.6}
-      transparent
-      opacity={0.85}
-    />
-  );
-}
-
 /**
- * Den ekte anleggsmodellen (Draco-komprimert GLB, dekoder i /public/draco).
- * CAD-eksporten var én sammenslått mesh uten materialer; scripts/colorize-model.py
- * deler den i navngitte klasser (vegger, tak, kar, rør, vann ...) som her får
- * hvert sitt materiale. Størrelsen normaliseres (lengste side = 90 enheter,
- * senter i origo, bakken på y=0). Med ?debug=1 i URL-en logges verdens-
+ * Anleggsmodellen, bygd fra CAD-eksporten med scripts/build-model.py:
+ * uten tak og omgivelser, delt i navngitte deler som får hvert sitt
+ * materiale her. Skalaen er låst til CAD-koordinatene (lengste side i
+ * originalen = 90 enheter), så hotspotene i lib/hotspots.ts står fast selv
+ * om modellen forenkles videre. Med ?debug=1 i URL-en logges verdens-
  * koordinaten for hvert klikk, til bruk for hotspot-plassering.
  */
-const MODEL_FIT = 90;
-const CUTAWAY_OFF = 200;
+const MODEL_SCALE = 90 / 398.0957;
+const FLOOR_Y = 14.5 * MODEL_SCALE;
 
 const PART_STYLES: Record<string, THREE.MeshStandardMaterialParameters> = {
-  ground: { color: "#3d3a2e", roughness: 1 },
-  floor: { color: "#8a8576", roughness: 0.9 },
-  wall: { color: "#b9b4a5", roughness: 0.85 },
-  roof: { color: "#cfcabb", roughness: 0.8 },
-  structure: { color: "#a6a192", roughness: 0.85 },
-  tank_floor: { color: "#2f5558", roughness: 0.7 },
-  pipe_large: { color: "#4c7393", roughness: 0.45, metalness: 0.3 },
-  pipe_small: { color: "#c39e5c", roughness: 0.45, metalness: 0.35 },
+  wall: { color: "#e2e4e6", roughness: 0.9 },
+  wall_top: { color: "#f5f6f7", roughness: 0.9 },
+  floor: { color: "#7b8086", roughness: 0.95 },
+  detail: { color: "#c7cacf", roughness: 0.8 },
+  pipe: { color: "#b3b7bd", roughness: 0.6, metalness: 0.2 },
+  pipe_green: { color: "#3aa84a", roughness: 0.5 },
+  pipe_blue: { color: "#2d6ad4", roughness: 0.5 },
+  pipe_yellow: { color: "#e6c02c", roughness: 0.5 },
+  vessel_red: { color: "#cf2f2b", roughness: 0.45 },
+  tank_floor: { color: "#0d7fae", roughness: 0.6 },
   water: {
-    color: "#7fb3b5",
-    roughness: 0.12,
-    metalness: 0.1,
+    color: "#28b6e0",
+    emissive: "#0a5f7c",
+    emissiveIntensity: 0.25,
+    roughness: 0.15,
+    metalness: 0,
     transparent: true,
-    opacity: 0.55,
+    opacity: 0.88,
     depthWrite: false,
   },
 };
 
-function RealModel({ url, cutaway }: { url: string; cutaway: boolean }) {
+function FacilityModel({ url }: { url: string }) {
   const { scene } = useGLTF(url, "/draco/");
-
-  const { scale, position } = useMemo(() => {
-    const box = new THREE.Box3().setFromObject(scene);
-    const size = box.getSize(new THREE.Vector3());
-    const s = MODEL_FIT / Math.max(size.x, size.y, size.z);
-    const center = box.getCenter(new THREE.Vector3());
-    return {
-      scale: s,
-      position: [-center.x * s, -box.min.y * s, -center.z * s] as [number, number, number],
-    };
-  }, [scene]);
-
-  // Snittplanet som kutter taket i «Se inni»-visningen (verdensrom, y <= constant)
-  const plane = useMemo(
-    () => new THREE.Plane(new THREE.Vector3(0, -1, 0), CUTAWAY_OFF),
-    []
-  );
 
   useEffect(() => {
     const cache = new Map<string, THREE.MeshStandardMaterial>();
-    const materialFor = (name: string) => {
-      const key = PART_STYLES[name] ? name : "structure";
-      let mat = cache.get(key);
+    scene.traverse((obj) => {
+      if (!(obj instanceof THREE.Mesh)) return;
+      // Navnet sitter på noden eller nærmeste forelder, avhengig av loader
+      const name = obj.name || obj.parent?.name || "";
+      const part = Object.keys(PART_STYLES)
+        .sort((a, b) => b.length - a.length)
+        .find((k) => name.startsWith(k)) ?? "detail";
+      let mat = cache.get(part);
       if (!mat) {
         mat = new THREE.MeshStandardMaterial({
-          metalness: 0.05,
           flatShading: true,
           side: THREE.DoubleSide,
-          clippingPlanes: [plane],
-          clipShadows: true,
-          ...PART_STYLES[key],
+          ...PART_STYLES[part],
         });
-        cache.set(key, mat);
+        cache.set(part, mat);
       }
-      return mat;
-    };
-    scene.traverse((obj) => {
-      if (obj instanceof THREE.Mesh) {
-        // Navnet sitter på noden eller nærmeste forelder, avhengig av loader
-        const name = obj.name || obj.parent?.name || "";
-        const part = Object.keys(PART_STYLES).find((k) => name.startsWith(k)) ?? name;
-        obj.material = materialFor(part);
-        const isWater = part === "water";
-        obj.castShadow = !isWater;
-        obj.receiveShadow = true;
-        if (isWater) obj.renderOrder = 1;
-      }
+      obj.material = mat;
+      const isWater = part === "water";
+      obj.castShadow = !isWater;
+      obj.receiveShadow = true;
+      if (isWater) obj.renderOrder = 1;
     });
-  }, [scene, plane]);
-
-  // Debug: ?clip=<høyde> låser snittplanet for koordinatarbeid
-  const clipOverride = useMemo(() => {
-    if (typeof window === "undefined") return null;
-    const v = new URLSearchParams(window.location.search).get("clip");
-    return v ? Number(v) : null;
-  }, []);
-
-  useFrame((_, dt) => {
-    const target = clipOverride ?? (cutaway ? CUTAWAY_HEIGHT : CUTAWAY_OFF);
-    easing.damp(plane, "constant", target, 0.5, dt);
-  });
+  }, [scene]);
 
   const debug =
-    typeof window !== "undefined" &&
-    new URLSearchParams(window.location.search).has("debug");
+    typeof window !== "undefined" && new URLSearchParams(window.location.search).has("debug");
 
   return (
-    <group scale={scale} position={position}>
+    <group scale={MODEL_SCALE}>
       <primitive
         object={scene}
         onPointerDown={
           debug
             ? (e: { point: THREE.Vector3 }) =>
-                console.log(
-                  "hotspot-koordinat:",
-                  e.point.toArray().map((v) => Math.round(v * 10) / 10)
-                )
+                console.log("hotspot-koordinat:", e.point.toArray().map((v) => Math.round(v * 10) / 10))
             : undefined
         }
       />
@@ -252,86 +156,50 @@ function RealModel({ url, cutaway }: { url: string; cutaway: boolean }) {
   );
 }
 
-export default function Scene({ dict, activeId, resetTick, cutaway, onSelect, onReady }: SceneProps) {
+export default function Scene({ dict, activeId, resetTick, onSelect, onReady }: SceneProps) {
   const reduced = useMemo(
     () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+      typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     []
   );
-
-  const mainLoop = useMemo(() => {
-    const curve = new THREE.CatmullRomCurve3(
-      [
-        new THREE.Vector3(-38, 1.2, 14),
-        new THREE.Vector3(-30, 1.5, 12),
-        new THREE.Vector3(-22, 1.7, 10),
-        new THREE.Vector3(-20, 1.9, 4),
-        new THREE.Vector3(-18, 2.1, -5.5),
-        new THREE.Vector3(-6, 2.1, -5.5),
-        new THREE.Vector3(6, 2.1, -5.5),
-        new THREE.Vector3(18, 2.1, -2),
-        new THREE.Vector3(21, 2.3, 6),
-        new THREE.Vector3(22, 2.6, 12),
-        new THREE.Vector3(12, 3.4, 10),
-        new THREE.Vector3(0, 3.6, 8),
-        new THREE.Vector3(-14, 3.2, 8),
-        new THREE.Vector3(-24, 2.4, 10),
-      ],
-      true
-    );
-    return curve.getPoints(280);
-  }, []);
-
-  const harvestLine = useMemo(() => {
-    const curve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(26, 1.8, -4),
-      new THREE.Vector3(33, 1.8, -4),
-      new THREE.Vector3(40, 1.8, -4),
-    ]);
-    return curve.getPoints(40);
-  }, []);
 
   return (
     <Canvas
       shadows
       dpr={[1, 2]}
       camera={{ position: DEFAULT_VIEW.camera, fov: 42, near: 0.5, far: 400 }}
-      gl={{ localClippingEnabled: true }}
       onCreated={onReady}
       aria-label={dict.facility.canvasLabel}
     >
-      <color attach="background" args={["#1c1a10"]} />
-      <fog attach="fog" args={["#1c1a10", 95, 230]} />
+      <color attach="background" args={["#eceeee"]} />
+      <fog attach="fog" args={["#eceeee", 110, 260]} />
 
-      <hemisphereLight intensity={0.6} color="#d0d2d2" groundColor="#26241a" />
-      <ambientLight intensity={0.3} />
+      <hemisphereLight intensity={1.1} color="#ffffff" groundColor="#9aa0a6" />
+      <ambientLight intensity={0.2} />
       <directionalLight
-        position={[35, 45, 20]}
-        intensity={1.7}
-        color="#f4e9d4"
+        position={[30, 50, 25]}
+        intensity={1.5}
+        color="#fffaf0"
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
-        shadow-camera-left={-75}
-        shadow-camera-right={75}
-        shadow-camera-top={60}
-        shadow-camera-bottom={-60}
+        shadow-camera-left={-80}
+        shadow-camera-right={80}
+        shadow-camera-top={55}
+        shadow-camera-bottom={-55}
         shadow-camera-far={160}
+        shadow-bias={-0.0004}
       />
 
       <Suspense fallback={null}>
-        {MODEL_URL ? <RealModel url={MODEL_URL} cutaway={cutaway} /> : <PlaceholderModel />}
+        <FacilityModel url={MODEL_URL} />
       </Suspense>
 
-      {/* Vannstrøm-animasjonen tegnes bare for plassholderen til traseen er
-          lagt om til den ekte modellens layout */}
-      {!MODEL_URL && (
-        <>
-          <WaterFlow points={mainLoop} paused={reduced} />
-          <WaterFlow points={harvestLine} paused={reduced} speed={1.4} />
-        </>
-      )}
+      {/* Myk skygge under bygget, ellers usynlig */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, FLOOR_Y - 0.05, 0]} receiveShadow>
+        <planeGeometry args={[110, 50]} />
+        <shadowMaterial opacity={0.14} />
+      </mesh>
 
       {hotspotDefs.map((h, i) => {
         const title = dict.facility.hotspots[h.id].title;
