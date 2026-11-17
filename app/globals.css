@@ -595,6 +595,15 @@ img {
   transform: translate(-50%, -50%) scale(1.12);
 }
 
+@media (max-width: 680px) {
+  .hotspot-marker {
+    width: 28px;
+    height: 28px;
+    font-size: 0.66rem;
+    box-shadow: 0 0 0 3px rgba(195, 158, 92, 0.25);
+  }
+}
+
 .hotspot-marker[aria-pressed="true"] {
   background: var(--bg);
   box-shadow: 0 0 0 5px rgba(208, 210, 210, 0.3);

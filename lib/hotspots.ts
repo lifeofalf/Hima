@@ -35,8 +35,8 @@ export const DEFAULT_VIEW: { camera: [number, number, number]; target: [number, 
 };
 
 export const hotspotDefs: HotspotDef[] = [
-  { id: "intake", marker: [-38, 5, 5], camera: [-50, 11, 18], target: [-38, 2.5, 5], interior: false },
-  { id: "smolt", marker: [-26, 6.5, 2], camera: [-36, 13, 18], target: [-26, 3, 2], interior: true },
+  { id: "intake", marker: [-43.4, 3.2, -4.9], camera: [-51, 8, 5], target: [-43.4, 2, -4.9], interior: false },
+  { id: "smolt", marker: [-33.2, 8, -3.8], camera: [-42, 15, 16], target: [-33.2, 3, 0.1], interior: true },
   { id: "grow", marker: [-8, 6.5, 2], camera: [-14, 15, 20], target: [-8, 3, 2], interior: true },
   { id: "filter", marker: [15, 6.5, 8], camera: [21, 12, 20], target: [15, 3, 8], interior: true },
   { id: "purge", marker: [20, 6.5, 2], camera: [27, 13, 14], target: [20, 3, 2], interior: true },

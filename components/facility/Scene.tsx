@@ -138,13 +138,33 @@ function WaterFlow({
 
 /**
  * Den ekte anleggsmodellen (Draco-komprimert GLB, dekoder i /public/draco).
- * Filen er én sammenslått mesh uten materialer, så vi normaliserer størrelsen
- * (lengste side = 90 enheter, senter i origo, bakken på y=0) og setter ett
- * arkitektmodell-aktig materiale. Med ?debug=1 i URL-en logges verdens-
+ * CAD-eksporten var én sammenslått mesh uten materialer; scripts/colorize-model.py
+ * deler den i navngitte klasser (vegger, tak, kar, rør, vann ...) som her får
+ * hvert sitt materiale. Størrelsen normaliseres (lengste side = 90 enheter,
+ * senter i origo, bakken på y=0). Med ?debug=1 i URL-en logges verdens-
  * koordinaten for hvert klikk, til bruk for hotspot-plassering.
  */
 const MODEL_FIT = 90;
 const CUTAWAY_OFF = 200;
+
+const PART_STYLES: Record<string, THREE.MeshStandardMaterialParameters> = {
+  ground: { color: "#3d3a2e", roughness: 1 },
+  floor: { color: "#8a8576", roughness: 0.9 },
+  wall: { color: "#b9b4a5", roughness: 0.85 },
+  roof: { color: "#cfcabb", roughness: 0.8 },
+  structure: { color: "#a6a192", roughness: 0.85 },
+  tank_floor: { color: "#2f5558", roughness: 0.7 },
+  pipe_large: { color: "#4c7393", roughness: 0.45, metalness: 0.3 },
+  pipe_small: { color: "#c39e5c", roughness: 0.45, metalness: 0.35 },
+  water: {
+    color: "#7fb3b5",
+    roughness: 0.12,
+    metalness: 0.1,
+    transparent: true,
+    opacity: 0.55,
+    depthWrite: false,
+  },
+};
 
 function RealModel({ url, cutaway }: { url: string; cutaway: boolean }) {
   const { scene } = useGLTF(url, "/draco/");
@@ -167,20 +187,33 @@ function RealModel({ url, cutaway }: { url: string; cutaway: boolean }) {
   );
 
   useEffect(() => {
-    const material = new THREE.MeshStandardMaterial({
-      color: "#b9b6a9",
-      flatShading: true,
-      roughness: 0.85,
-      metalness: 0.05,
-      side: THREE.DoubleSide,
-      clippingPlanes: [plane],
-      clipShadows: true,
-    });
+    const cache = new Map<string, THREE.MeshStandardMaterial>();
+    const materialFor = (name: string) => {
+      const key = PART_STYLES[name] ? name : "structure";
+      let mat = cache.get(key);
+      if (!mat) {
+        mat = new THREE.MeshStandardMaterial({
+          metalness: 0.05,
+          flatShading: true,
+          side: THREE.DoubleSide,
+          clippingPlanes: [plane],
+          clipShadows: true,
+          ...PART_STYLES[key],
+        });
+        cache.set(key, mat);
+      }
+      return mat;
+    };
     scene.traverse((obj) => {
       if (obj instanceof THREE.Mesh) {
-        obj.material = material;
-        obj.castShadow = true;
+        // Navnet sitter på noden eller nærmeste forelder, avhengig av loader
+        const name = obj.name || obj.parent?.name || "";
+        const part = Object.keys(PART_STYLES).find((k) => name.startsWith(k)) ?? name;
+        obj.material = materialFor(part);
+        const isWater = part === "water";
+        obj.castShadow = !isWater;
         obj.receiveShadow = true;
+        if (isWater) obj.renderOrder = 1;
       }
     });
   }, [scene, plane]);
